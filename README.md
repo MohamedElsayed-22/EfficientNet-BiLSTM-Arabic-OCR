@@ -1,0 +1,1 @@
+# EfficientNet-BiLSTM-Arabic-OCR
