@@ -60,7 +60,7 @@ def build_model(image_width, image_height, num_classes):
     opt = keras.optimizers.Adam(learning_rate=lr_schedule)
 
     model.compile(optimizer=opt)
-    model.summary()
+    print(model.summary())
 
     return model
 
