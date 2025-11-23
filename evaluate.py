@@ -25,7 +25,7 @@ for batch in test_ds:
     print("batch len:", len(batch["label"]))
     num_of_test_samples += len(batch["label"])
 
-    preds = prediction_model.predict(batch_images)
+    preds = prediction_model_loaded.predict(batch_images)
     pred_texts = decode_batch_predictions(preds)
 
 
@@ -47,20 +47,22 @@ for batch in test_ds:
         title = f"Prediction: {pred_texts[i][::-1]}"
 
         # Convert label to string for comparison
-        true_label_str = tf.strings.reduce_join(tf.strings.as_string(label)).numpy().decode('utf-8') if label is not None else ""
+        true_label_str = label_str
 
         # Calculate accuracy for each prediction separately
-        correct_predictions = sum([1 for pred_char, true_char in zip(pred_texts[i], true_label_str) if pred_char == true_char])
+        pred_text = pred_texts[i][::-1]  # reverse for display and comparison
+        correct_predictions = sum([1 for pred_char, true_char in zip(pred_text, true_label_str) if pred_char == true_char])
         total_true_letters += len(true_label_str)
         total_correct_predictions += correct_predictions
 
-        print("pred: ", pred_texts[i]) 
+        print("pred: ", pred_text) 
         print("true label: ", true_label_str)
         print(f"Correct Predictions: {correct_predictions}")
         print(f"Total True Letters: {len(true_label_str)}")
         print(f"Prediction Accuracy: {correct_predictions / max(len(true_label_str), 1) * 100:.2f}%")
 
 
-overall_accuracy = total_correct_predictions / total_true_letters
+
+overall_accuracy = total_correct_predictions / max(total_true_letters, 1)
 print(f"\nOverall Accuracy: {overall_accuracy * 100:.2f}% of samples: {num_of_test_samples}")
 
