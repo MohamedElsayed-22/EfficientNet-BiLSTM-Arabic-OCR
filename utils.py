@@ -67,14 +67,17 @@ class EditDistanceCallback(keras.callbacks.Callback):
         self.validation_images = validation_images
         self.validation_labels = validation_labels
 
-    def on_epoch_end(self, epoch, validation_images, validation_labels, logs=None):
+    def on_epoch_end(self, epoch, logs=None):
         edit_distances = []
-        for sample in range(len(validation_images)):
-            labels = validation_labels[sample]
-            predictions = self.prediction_model.predict(validation_images[sample])
-            edit_distances.append(calculate_edit_distance(labels, predictions).numpy())
+        for sample in range(len(self.validation_images)):
+            labels = self.validation_labels[sample]
+            predictions = self.prediction_model.predict(np.expand_dims(self.validation_images[sample], axis=0))
+            edit_distances.append(
+                calculate_edit_distance([labels], predictions, max_len=len(labels)).numpy()
+            )
 
         print(f"Mean edit distance for epoch {epoch + 1}: {np.mean(edit_distances):.4f}")
+
 
 
 def decode_batch_predictions(pred, max_len, num_to_char):
