@@ -42,6 +42,7 @@ def build_model(image_width, image_height, num_classes):
     # Self-Attention Layer
     attention = layers.MultiHeadAttention(num_heads=2, key_dim=128)(x, x)
     x = layers.Concatenate()([x, attention])
+    x = layers.Dense(128, activation="relu")(x)
     x = layers.LayerNormalization()(x)
 
     # Dense Layer
