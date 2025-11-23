@@ -48,9 +48,10 @@ indices = tf.gather(label, tf.where(tf.math.not_equal(label, padding_token)))
 label = tf.strings.reduce_join(num_to_char(indices))
 label = label.numpy().decode("utf-8")
 
-train_ds = prepare_dataset(train_images, train_labels_cleaned, augment=True)
-test_ds = prepare_dataset(test_images, test_labels_cleaned)
-validation_ds = prepare_dataset(validate_images, validation_labels_cleaned)
+train_ds = prepare_dataset(train_images, train_labels_cleaned, char_to_num, max_len, augment=True, shuffle=True)
+validation_ds = prepare_dataset(validate_images, validation_labels_cleaned, char_to_num, max_len)
+test_ds = prepare_dataset(test_images, test_labels_cleaned, char_to_num, max_len)
+
 
 validation_images = [batch["image"] for batch in validation_ds]
 validation_labels = [batch["label"] for batch in validation_ds]

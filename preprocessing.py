@@ -1,19 +1,15 @@
-# from tensorflow.keras.layers.experimental.preprocessing import StringLookup
-# from tensorflow import keras
 import tensorflow_addons as tfa
-# import matplotlib.pyplot as plt
 import tensorflow as tf
 import numpy as np
-# import cv2 as cv
-# import os
+
 
 AUTOTUNE = tf.data.AUTOTUNE
-
 
 image_width = 86*4
 image_height = 62*2
 batch_size = 32 # best training was 32
 padding_token = 99
+
 
 def distortion_free_resize(image, img_size):
     w, h = img_size
@@ -62,7 +58,6 @@ def preprocess_image(image_path, img_size=(image_width, image_height), augment=F
     if augment:
         # Random horizontal flip
         # image = tf.image.random_flip_left_right(image)
-
         # Random shear transformation
         shear_x = np.random.uniform(-0.3, 0.3)
         shear_y = np.random.uniform(-0.3, 0.3)
@@ -92,9 +87,19 @@ def process_images_labels(image_path, label, augment=False):
     return {"image": image, "label": label}
 
 
-def prepare_dataset(image_paths, labels, augment=False):
-    dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels)).map(
-        lambda image_path, label: process_images_labels(image_path, label, augment=augment),
+def prepare_dataset(image_paths, labels, char_to_num, max_len, augment=False, shuffle=False):
+    dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels))
+
+    if shuffle:
+        dataset = dataset.shuffle(buffer_size=len(image_paths))
+
+    dataset = dataset.map(
+        lambda image_path, label: process_images_labels(
+            image_path, label, char_to_num, max_len, augment=augment
+        ),
         num_parallel_calls=AUTOTUNE
     )
-    return dataset.batch(batch_size).cache().prefetch(AUTOTUNE)
+
+    dataset = dataset.batch(batch_size).cache().prefetch(AUTOTUNE)
+    return dataset
+
